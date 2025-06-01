@@ -10,6 +10,7 @@ app = FastAPI(root_path="/projects/MNISTneuralnet")
 # Add CORS middleware
 origins = [
     "https://busbylabs.com",  # Replace with your production domain
+    "http://busbylabs.com"
 ]
 
 app.add_middleware(
