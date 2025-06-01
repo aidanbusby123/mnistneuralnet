@@ -37,7 +37,7 @@ async def predict(data: ImageData):
         raise HTTPException(status_code=400, detail="No image data provided")
 
     # Convert the image data to a NumPy array
-    image = np.array(data.image).reshape(784, 1) / 255.0  # Normalize to [0, 1]
+    image = np.array(data.image).reshape(784, 1)  # Normalize to [0, 1]
 
     # Feed the image into the network
     output = net.feedforward(image)
