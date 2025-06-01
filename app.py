@@ -9,9 +9,7 @@ app = FastAPI()
 
 # Add CORS middleware
 origins = [
-    "http://localhost:3000",  # React development server
-    "http://127.0.0.1:3000",  # Alternate localhost
-    "http://yourdomain.com",  # Replace with your production domain
+    "https://busbylabs.com",  # Replace with your production domain
 ]
 
 app.add_middleware(
