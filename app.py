@@ -5,7 +5,7 @@ from network import Network
 from fastapi.middleware.cors import CORSMiddleware
 
 # Initialize FastAPI app
-app = FastAPI()
+app = FastAPI(root_path="/projects/MNISTneuralnet")
 
 # Add CORS middleware
 origins = [
@@ -29,7 +29,7 @@ class ImageData(BaseModel):
     image: list  # Expecting a list of pixel values
 
 # Define an endpoint for digit prediction
-@app.post("/projects/MNISTneuralnet/predict")
+@app.post("/predict")
 async def predict(data: ImageData):
     # Validate and process the image data
     if not data.image:
