@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 import numpy as np
 from network import Network
+from flask_cors import CORS
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Load the trained neural network
 net = Network([784, 56, 28, 14, 10, 1])
