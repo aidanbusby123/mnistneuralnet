@@ -1,34 +1,48 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import numpy as np
 from network import Network
-from flask_cors import CORS
+from fastapi.middleware.cors import CORSMiddleware
 
-# Initialize Flask app
-app = Flask(__name__)
-CORS(app)
+# Initialize FastAPI app
+app = FastAPI()
+
+# Add CORS middleware
+origins = [
+    "http://localhost:3000",  # React development server
+    "http://127.0.0.1:3000",  # Alternate localhost
+    "http://yourdomain.com",  # Replace with your production domain
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load the trained neural network
 net = Network([784, 56, 28, 14, 10, 1])
 net.load("nn.dat")  # Load the saved weights and biases
 
+# Define a Pydantic model for the request body
+class ImageData(BaseModel):
+    image: list  # Expecting a list of pixel values
+
 # Define an endpoint for digit prediction
-@app.route('/predict', methods=['POST'])
-def predict():
-    # Get the image data from the request
-    data = request.json
-    if 'image' not in data:
-        return jsonify({'error': 'No image data provided'}), 400
+@app.post("/predict")
+async def predict(data: ImageData):
+    # Validate and process the image data
+    if not data.image:
+        raise HTTPException(status_code=400, detail="No image data provided")
 
     # Convert the image data to a NumPy array
-    image = np.array(data['image']).reshape(784, 1) / 255.0  # Normalize to [0, 1]
+    image = np.array(data.image).reshape(784, 1) / 255.0  # Normalize to [0, 1]
 
     # Feed the image into the network
     output = net.feedforward(image)
     predicted_digit = int(np.argmax(output))  # Get the predicted digit
 
     # Return the prediction as JSON
-    return jsonify({'digit': predicted_digit})
-
-# Run the Flask app
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    return {"digit": predicted_digit}
