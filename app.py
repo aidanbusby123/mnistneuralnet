@@ -6,7 +6,7 @@ from network import Network
 app = Flask(__name__)
 
 # Load the trained neural network
-net = Network([784, 64, 10])
+net = Network([784, 56, 28, 14, 10, 1])
 net.load("nn.dat")  # Load the saved weights and biases
 
 # Define an endpoint for digit prediction

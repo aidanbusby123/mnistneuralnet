@@ -4,6 +4,7 @@ from keras.datasets import mnist
 import numpy as np
 import tkinter as tk
 from PIL import Image, ImageOps
+from time import sleep
 
 def load_training_data():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -35,13 +36,22 @@ def load_training_data():
 
     return training_data, test_data
 
-net = Network([784, 64, 10])
+net = Network([784, 56, 10])
+
+vertical = np.array([(np.append(np.append(np.zeros((1, 28*i)), np.ones((1, 28))), np.zeros((1, 784-(28*(i+1)))))) for i in range (0, 28)])
+horizontal = np.array([np.insert(np.zeros((1, 27)), i, 1) for i in range(28)])
+horizontal = np.tile(horizontal, 28)
+print(np.shape(vertical))
+print(np.shape(horizontal))
+#net.weights[0] = np.reshape(np.append(vertical, horizontal), (56, 784))
 #net.load('nn.dat')
 
 
 training_data, test_data = load_training_data()
 
-net.SGD(40, 15, 2.0, training_data, test_data)
+#net.evaluate(test_data)
+#sleep(50)
+net.SGD(10, 5, 0.05, training_data, test_data)
 net.save("nn.dat")
 
 

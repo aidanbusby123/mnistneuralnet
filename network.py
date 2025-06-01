@@ -1,6 +1,7 @@
 from keras.datasets import mnist
 import numpy as np
 import random
+from time import sleep
 
 class Network(object):
     def __init__(self, sizes):
@@ -8,13 +9,13 @@ class Network(object):
         self.sizes = sizes
 
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y, x) for x, y in zip(sizes[:-1], sizes[1:])]
+        self.weights = [np.random.randn(y, x) * np.sqrt(2/x) for x, y in zip(sizes[:-1], sizes[1:])]
        # print(self.weights)
 
     def feedforward(self, a):
         for w, b in zip(self.weights, self.biases):
             a = sigmoid(np.dot(w, a)+b)
-        #print(a)
+
         return a
     
     def SGD(self, epochs, mini_batch_size, learning_rate, training_data, test_data):
@@ -30,6 +31,7 @@ class Network(object):
             ]
             for mini_batch in mini_batches:
                 self.update(mini_batch, learning_rate)
+               # print('Mini batch completed')
 
     def update(self, mini_batch, learning_rate):
         nabla_w = [np.zeros(np.shape(w)) for w in self.weights]
@@ -58,8 +60,7 @@ class Network(object):
         a = x
         acts = [x]
         zs = []
-        layers = 0
-        delta = []
+
         for w, b in zip(self.weights, self.biases):
           #  print(np.shape(w))
           #  print(np.shape(np.dot(w,a)))
@@ -67,26 +68,27 @@ class Network(object):
             z = np.dot(w, a) + b
             zs.append(z)
             a = sigmoid(z)
+            #print(a)
             acts.append(a)
-            layers+=1
         
     
         delta = (a - y) * sigmoid_prime(z)
-        
+       # print(a)
+        #print(relu(z))
 
         nabla_b = [np.zeros(np.shape(b)) for b in self.biases]
         nabla_w = [np.zeros(np.shape(w)) for w in self.weights]
         #print("Layers")
         #print(layers)
-        nabla_b[layers-1] = delta
-        nabla_w[layers-1] = np.dot(delta, acts[layers-1].transpose())
+        nabla_b[self.num_layers-2] = delta
+        nabla_w[self.num_layers-2] = np.dot(delta, acts[self.num_layers-2].transpose())
        # print(np.shape(nabla_w[layers-1]))
 
-        for l in range (layers, 3, -1):
-            delta = np.dot(self.weights[l-1].transpose(), delta) * sigmoid_prime(z[l-2])
+        for l in range (self.num_layers-2, 0, -1):
+            delta = np.dot(self.weights[l].transpose(), delta) * sigmoid_prime(zs[l-1])
             #print(delta)
-            nabla_b[l-2] = delta
-            nabla_w[l-2] = np.dot(delta, acts[l-2].transpose())
+            nabla_b[l-1] = delta
+            nabla_w[l-1] = np.dot(delta, acts[l-1].transpose())
 
         return (nabla_w, nabla_b)
     
@@ -97,15 +99,16 @@ class Network(object):
     
     def save(self, filename):
         with open(filename, 'wb') as file:
-            np.savez(file, np.array(self.weights, dtype=object),np.array(self.biases, dtype=object))
+            np.savez(file, sizes = self.sizes, weights = np.array(self.weights, dtype=object), biases = np.array(self.biases, dtype=object))
         print("Saved network")
         print(f"Loaded weights: {[w.shape for w in self.weights]}")
         print(f"Loaded biases: {[b.shape for b in self.biases]}")
 
     def load(self, filename):
         with np.load(filename, allow_pickle=True) as data:
-            self.weights = data['arr_0']
-            self.biases = data['arr_1']
+            self.sizes = data['sizes']
+            self.weights = data['weights']
+            self.biases = data['biases']
         
         print(f"Loaded weights: {[np.shape(w) for w in self.weights]}")
         print(f"Loaded biases: {[np.shape(b) for b in self.biases]}")
@@ -123,10 +126,10 @@ def sigmoid_prime(z):
 
 
 def relu(z):
-    return np.maximum(0, z)
+    return np.maximum(0.0, z)
 
 def relu_prime(z):
-    return np.where(z > 0, 1, 0)
+    return np.where(z > 0.0, 1.0, 0.0)
 
 def vec_val(z):
     e = np.zeros((10, 1))
