@@ -29,7 +29,7 @@ class ImageData(BaseModel):
     image: list  # Expecting a list of pixel values
 
 # Define an endpoint for digit prediction
-@app.post("/predict")
+@app.post("/projects/MNISTneuralnet/predict")
 async def predict(data: ImageData):
     # Validate and process the image data
     if not data.image:
