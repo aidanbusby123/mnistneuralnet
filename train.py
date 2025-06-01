@@ -43,7 +43,7 @@ horizontal = np.array([np.insert(np.zeros((1, 27)), i, 1) for i in range(28)])
 horizontal = np.tile(horizontal, 28)
 print(np.shape(vertical))
 print(np.shape(horizontal))
-#net.weights[0] = np.reshape(np.append(vertical, horizontal), (56, 784))
+net.weights[0] = np.reshape(np.append(vertical, horizontal), (56, 784))
 #net.load('nn.dat')
 
 
@@ -51,7 +51,7 @@ training_data, test_data = load_training_data()
 
 #net.evaluate(test_data)
 #sleep(50)
-net.SGD(10, 5, 0.05, training_data, test_data)
+net.SGD(12, 5, 0.05, training_data, test_data)
 net.save("nn.dat")
 
 
